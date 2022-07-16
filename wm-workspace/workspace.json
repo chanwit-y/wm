@@ -3,6 +3,7 @@
   "version": 2,
   "projects": {
     "components": "packages/components",
+    "firebase": "packages/firebase",
     "web-ui": "packages/web-ui",
     "web-ui-e2e": "packages/web-ui-e2e"
   }
