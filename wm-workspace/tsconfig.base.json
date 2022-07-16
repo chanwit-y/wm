@@ -15,6 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@wm-workspace/auth": ["packages/auth/src/index.ts"],
       "@wm-workspace/components": ["packages/components/src/index.ts"],
       "@wm-workspace/firebase": ["packages/firebase/src/index.ts"]
     }
