@@ -5,6 +5,9 @@
   "scripts": {},
   "private": true,
   "dependencies": {
+    "@emotion/react": "^11.9.3",
+    "@emotion/styled": "^11.9.3",
+    "@mui/material": "^5.9.0",
     "@nrwl/next": "14.4.3",
     "core-js": "^3.6.5",
     "next": "12.1.6",
