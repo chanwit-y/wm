@@ -1,5 +1,5 @@
 import { Button } from '@mui/material';
-import styles from './index.module.css';
+import { Fragment, useEffect } from 'react';
 
 export function Index() {
   /*
@@ -7,9 +7,13 @@ export function Index() {
    *
    * Note: The corresponding styles are in the ./index.css file.
    */
+
+
   return (
     <div>
-      <Button>Test</Button>
+      <Fragment>
+        <Button>Test</Button>
+      </Fragment>
     </div>
   );
 }
