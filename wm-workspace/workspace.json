@@ -1,0 +1,8 @@
+{
+  "$schema": "./node_modules/nx/schemas/workspace-schema.json",
+  "version": 2,
+  "projects": {
+    "web-ui": "packages/web-ui",
+    "web-ui-e2e": "packages/web-ui-e2e"
+  }
+}
