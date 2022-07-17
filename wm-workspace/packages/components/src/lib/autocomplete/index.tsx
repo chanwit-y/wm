@@ -179,10 +179,10 @@ export const Autocomplete = <T extends any>({
       setOptions([]);
       const getOptionData = async () => {
         if (callback) {
-          const res = await callback('', callbackParam);
-          res
-            .pipe(switchMap((res) => res))
-            .subscribe((res) => setOptions((perv) => [...perv, res]));
+          // const res = await callback('', callbackParam);
+          // res
+          //   .pipe(switchMap((res) => res))
+          //   .subscribe((res) => setOptions((perv) => [...perv, res]));
           // setOptions(res);
         } else {
           setOptions(data ?? []);
@@ -203,11 +203,14 @@ export const Autocomplete = <T extends any>({
     //   : callback && (await callback(text, callbackParam));
     // response && setOptions(response);
 
-    if (callbackParam) {
-      const res = callback && (await callback(text, callbackParam));
+    if (callback) {
+      console.log('Hi')
+      const res = callback && callback(text, callbackParam);
       res && res
-        .pipe(switchMap((res) => res))
-        .subscribe((res) => setOptions((perv) => [...perv, res]));
+        .subscribe((res) => console.log(res));
+      // res && res
+      //   .pipe(switchMap((res) => res))
+      //   .subscribe((res) => setOptions((perv) => [...perv, res]));
     }
 
     setIsLoading(false);

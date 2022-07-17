@@ -4,6 +4,16 @@ import { Autocomplete } from '@wm-workspace/components';
 import { DocumentData } from 'firebase/firestore';
 import { useMemo, useState } from 'react';
 import { Fragment, useEffect } from 'react';
+import { ajax } from 'rxjs/ajax';
+import { catchError, map, of } from 'rxjs';
+
+
+type PostType = {
+            userId: number;
+            id: number;
+            title: string;
+            body: string;
+          }
 
 export function Index() {
   /*
@@ -28,15 +38,20 @@ export function Index() {
       <Fragment>
         {JSON.stringify(data, undefined, 2)}
         <Box px={5}>
-          <Autocomplete<string>
+          <Autocomplete<PostType>
             name="test"
-            data={['a', 'b', 'c']}
-            isShowAll={true}
-            optionLabel={(opt) => opt}
+            callback={(text: string) => {
+              return ajax('https://jsonplaceholder.typicode.com/posts').pipe(
+                map((res) =>  console.log(res)),
+                catchError((error) => {
+                  console.log('error: ', error);
+                  return of(error);
+                })
+              );
+            }}
+            optionLabel={(opt: PostType) => opt.title}
             isShowSearchIcon={true}
-            render={(props, opt) => (
-                <div {...props}>{opt}</div>
-            )}
+            render={(props, opt) => <div {...props}>{opt.title}</div>}
           />
         </Box>
         <Button>Test</Button>
