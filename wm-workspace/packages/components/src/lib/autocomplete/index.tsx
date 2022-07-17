@@ -37,7 +37,7 @@ import {
   isEnglishLetters,
   isEnglishLettersWithNumbers,
 } from '@wm-workspace/util';
-import { Observable, switchMap } from 'rxjs';
+import { Observable, Subject, switchMap } from 'rxjs';
 
 type ValidateInsideArrayOption = {
   index: number;
@@ -51,7 +51,8 @@ type KeyValue = { [key: string]: any };
 type Props<T> = {
   name: string;
   // callback('text on input', callbackParam) { const {key} =  callbackParam; ...}
-  callback?: (text: string, callbackParam?: KeyValue) => Observable<T[]>; // Function;
+  subject: Subject<string>;
+  callback?: (callbackParam?: KeyValue) => Observable<any>; // Function;
   // parameter for callback function {"key": "value"}
   callbackParam?: KeyValue;
   data?: T[];
@@ -99,6 +100,7 @@ type Props<T> = {
 
 export const Autocomplete = <T extends any>({
   name,
+  subject,
   callback,
   callbackParam,
   data,
@@ -135,6 +137,7 @@ export const Autocomplete = <T extends any>({
   freeSolo,
   isValidate = false,
 }: Props<T>) => {
+  // const subject = new Subject<string>();
   const [autocompleteValue, setAutocompleteValue] = useState<
     T | undefined | AutocompleteValue<T, OptBool, OptBool, OptBool>
   >(selectedValue ?? null);
@@ -144,10 +147,10 @@ export const Autocomplete = <T extends any>({
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const delayedHandleChange = debounce(
-    (text: string) => callBackWithOtherParam(text),
-    500
-  );
+  // const delayedHandleChange = debounce(
+  //   (text: string) => callBackWithOtherParam(text),
+  //   500
+  // );
 
   const validateLetters = (e: KeyboardEvent<HTMLDivElement>) => {
     if (isLettersOnly) {
@@ -193,28 +196,29 @@ export const Autocomplete = <T extends any>({
     }
   }, [isShowAll, data]);
 
-  const callBackWithOtherParam = async (text: string) => {
-    setOptions([]);
+  // const callBackWithOtherParam = async (text: string) => {
+  //   setOptions([]);
 
-    setIsLoading(true);
-    // TODO: callback call by switchmap rxjs
-    // const response = callbackParam
-    //   ? callback && (await callback(text, callbackParam))
-    //   : callback && (await callback(text, callbackParam));
-    // response && setOptions(response);
+  //   setIsLoading(true);
+  //   // TODO: callback call by switchmap rxjs
+  //   // const response = callbackParam
+  //   //   ? callback && (await callback(text, callbackParam))
+  //   //   : callback && (await callback(text, callbackParam));
+  //   // response && setOptions(response);
 
-    if (callback) {
-      console.log('Hi')
-      const res = callback && callback(text, callbackParam);
-      res && res
-        .subscribe((res) => console.log(res));
-      // res && res
-      //   .pipe(switchMap((res) => res))
-      //   .subscribe((res) => setOptions((perv) => [...perv, res]));
-    }
+  //   if (callback) {
+  //     console.log('Hi');
+  //     // const res = callback && callback(subject, callbackParam);
+  //     // console.log(res);
+  //     // res && res.subscribe((res) => console.log(res));
+  //     // // res &&
+  //     //   res
+  //     //     .pipe(switchMap((res) => res))
+  //     //     .subscribe((res) => setOptions((perv) => [...perv, res]));
+  //   }
 
-    setIsLoading(false);
-  };
+  //   setIsLoading(false);
+  // };
 
   useEffect(() => {
     if (validateInsideArrayOption && errors) {
@@ -230,6 +234,18 @@ export const Autocomplete = <T extends any>({
   useEffect(() => {
     console.log(isShowSearchIcon);
   }, [isShowSearchIcon]);
+
+  useEffect(() => {
+    console.log('callback');
+    callback &&
+      callback().subscribe((res) => {
+        setOptions([]);
+        console.log(res);
+        setOptions(res);
+        setIsLoading(false);
+      });
+    // subject.subscribe((res) => console.log(res));
+  }, [callback, setOptions, setIsLoading]);
 
   return (
     <MuiAutocomplete<T, OptBool, OptBool, OptBool>
@@ -275,7 +291,7 @@ export const Autocomplete = <T extends any>({
           (child, i) => {
             return cloneElement(child as ReactElement<any>, {
               children: [
-                <Box key={i} display="flex" px={1}>
+                <Box display="flex" px={1}>
                   {(isLoading || isShowLoading) && (
                     <Box px={1} pt={1}>
                       <CircularProgress color="primary" size={20} />
@@ -306,7 +322,8 @@ export const Autocomplete = <T extends any>({
               size="small"
               variant="outlined"
               onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                !isShowAll && delayedHandleChange(e.target.value);
+                subject.next(e.target.value);
+                // !isShowAll && delayedHandleChange(e.target.value);
                 freeSolo && setValue && setValue(name, e.target.value);
                 onTextChange && onTextChange(e);
                 e.target.value === '' && setValue && setValue(name, '');
@@ -315,7 +332,8 @@ export const Autocomplete = <T extends any>({
               onClick={(e) => {
                 onClick && onClick(e);
                 if (!isShowAll) {
-                  delayedHandleChange('');
+                  // delayedHandleChange('');
+                  subject.next('');
                   setIsLoading(true);
                   setIsOpen(true);
                 }
