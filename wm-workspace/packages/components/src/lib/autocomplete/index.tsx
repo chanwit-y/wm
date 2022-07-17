@@ -37,6 +37,7 @@ import {
   isEnglishLetters,
   isEnglishLettersWithNumbers,
 } from '@wm-workspace/util';
+import { Observable, switchMap } from 'rxjs';
 
 type ValidateInsideArrayOption = {
   index: number;
@@ -50,7 +51,7 @@ type KeyValue = { [key: string]: any };
 type Props<T> = {
   name: string;
   // callback('text on input', callbackParam) { const {key} =  callbackParam; ...}
-  callback?: Function;
+  callback?: (text: string, callbackParam?: KeyValue) => Observable<T[]>; // Function;
   // parameter for callback function {"key": "value"}
   callbackParam?: KeyValue;
   data?: T[];
@@ -67,6 +68,7 @@ type Props<T> = {
   isFilterSelectedOptions?: boolean;
   isDisabled?: boolean;
   isAutoSelect?: boolean;
+  isValidate?: boolean;
 
   frontIcon?: JSX.Element;
 
@@ -92,7 +94,6 @@ type Props<T> = {
   onSelectedValue?: Function;
 
   freeSolo?: boolean;
-  validate?: boolean;
   placeholder?: string;
 };
 
@@ -132,19 +133,19 @@ export const Autocomplete = <T extends any>({
   placeholder,
   onSelectedValue,
   freeSolo,
-  validate = false,
+  isValidate = false,
 }: Props<T>) => {
   const [autocompleteValue, setAutocompleteValue] = useState<
     T | undefined | AutocompleteValue<T, OptBool, OptBool, OptBool>
   >(selectedValue ?? null);
   const [textField, setTextField] = useState(inputValue);
   const [options, setOptions] = useState<T[]>([]);
-  const [open, setOpen] = useState(false);
   const [errorAutoComplet, setErrorAutoComplet] = useState<any>();
+  const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const delayedHandleChange = debounce(
-    (text: string) => callBackWithSetOptions(text),
+    (text: string) => callBackWithOtherParam(text),
     500
   );
 
@@ -158,8 +159,8 @@ export const Autocomplete = <T extends any>({
   };
 
   useEffect(() => {
-    !open && !isShowAll && setOptions([]);
-  }, [open]);
+    !isOpen && !isShowAll && setOptions([]);
+  }, [isOpen]);
 
   useEffect(() => {
     inputValue && setTextField(inputValue);
@@ -178,8 +179,11 @@ export const Autocomplete = <T extends any>({
       setOptions([]);
       const getOptionData = async () => {
         if (callback) {
-          const res = (await callback('', callbackParam)) as T[];
-          setOptions(res);
+          const res = await callback('', callbackParam);
+          res
+            .pipe(switchMap((res) => res))
+            .subscribe((res) => setOptions((perv) => [...perv, res]));
+          // setOptions(res);
         } else {
           setOptions(data ?? []);
         }
@@ -189,17 +193,23 @@ export const Autocomplete = <T extends any>({
     }
   }, [isShowAll, data]);
 
-  const callBackWithSetOptions = async (text: string) => {
+  const callBackWithOtherParam = async (text: string) => {
     setOptions([]);
 
-    let response: T[];
     setIsLoading(true);
+    // TODO: callback call by switchmap rxjs
+    // const response = callbackParam
+    //   ? callback && (await callback(text, callbackParam))
+    //   : callback && (await callback(text, callbackParam));
+    // response && setOptions(response);
+
     if (callbackParam) {
-      response = callback && (await callback(text, callbackParam));
-    } else {
-      response = callback && (await callback(text, callbackParam));
+      const res = callback && (await callback(text, callbackParam));
+      res && res
+        .pipe(switchMap((res) => res))
+        .subscribe((res) => setOptions((perv) => [...perv, res]));
     }
-    response && setOptions(response);
+
     setIsLoading(false);
   };
 
@@ -235,9 +245,9 @@ export const Autocomplete = <T extends any>({
           : undefined
       }
       groupBy={groupBy}
-      open={open}
-      onOpen={() => setOpen(true)}
-      onClose={() => setOpen(false)}
+      open={isOpen}
+      onOpen={() => setIsOpen(true)}
+      onClose={() => setIsOpen(false)}
       inputValue={textField}
       onInputChange={(_, newInputValue) => setTextField(newInputValue)}
       multiple={isMultiple}
@@ -304,10 +314,10 @@ export const Autocomplete = <T extends any>({
                 if (!isShowAll) {
                   delayedHandleChange('');
                   setIsLoading(true);
-                  setOpen(true);
+                  setIsOpen(true);
                 }
               }}
-              error={errorAutoComplet ? !errorAutoComplet[name] : validate}
+              error={errorAutoComplet ? !errorAutoComplet[name] : isValidate}
               helperText={
                 (errorAutoComplet &&
                   (
