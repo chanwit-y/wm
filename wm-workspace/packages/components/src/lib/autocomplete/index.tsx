@@ -56,6 +56,7 @@ type Props<T> = {
   data?: T[];
   inputValue?: string;
   limitTags?: number;
+
   isShowAll?: boolean;
   isMultiple?: boolean;
   isShowLoading?: boolean;
@@ -63,11 +64,9 @@ type Props<T> = {
   isShowSearchIcon?: boolean;
   isLettersOnly?: boolean;
   isEnglishOnly?: boolean;
-
-  filterSelectedOptions?: boolean;
-
-  disabled?: boolean;
-  autoSelect?: boolean;
+  isFilterSelectedOptions?: boolean;
+  isDisabled?: boolean;
+  isAutoSelect?: boolean;
 
   frontIcon?: JSX.Element;
 
@@ -104,6 +103,7 @@ export const Autocomplete = <T extends any>({
   data,
   inputValue = '',
   limitTags = 4,
+
   isShowAll = false,
   isMultiple = false,
   isShowLoading = false,
@@ -111,8 +111,10 @@ export const Autocomplete = <T extends any>({
   isShowSearchIcon = true,
   isLettersOnly = false,
   isEnglishOnly = false,
-  disabled = false,
-  autoSelect,
+  isDisabled = false,
+  isAutoSelect,
+  isFilterSelectedOptions = true,
+
   frontIcon,
   filterOptions,
   groupBy,
@@ -131,7 +133,6 @@ export const Autocomplete = <T extends any>({
   onSelectedValue,
   freeSolo,
   validate = false,
-  filterSelectedOptions = true,
 }: Props<T>) => {
   const [autocompleteValue, setAutocompleteValue] = useState<
     T | undefined | AutocompleteValue<T, OptBool, OptBool, OptBool>
@@ -221,10 +222,10 @@ export const Autocomplete = <T extends any>({
     <MuiAutocomplete<T, OptBool, OptBool, OptBool>
       fullWidth
       freeSolo={freeSolo}
-      filterSelectedOptions={filterSelectedOptions}
+      filterSelectedOptions={isFilterSelectedOptions}
       openOnFocus
       forcePopupIcon={false}
-      autoSelect={autoSelect}
+      autoSelect={isAutoSelect}
       filterOptions={
         filterOptions
           ? (options, state) => {
@@ -235,22 +236,16 @@ export const Autocomplete = <T extends any>({
       }
       groupBy={groupBy}
       open={open}
-      onOpen={() => {
-        setOpen(true);
-      }}
-      onClose={() => {
-        setOpen(false);
-      }}
+      onOpen={() => setOpen(true)}
+      onClose={() => setOpen(false)}
       inputValue={textField}
-      onInputChange={(_, newInputValue) => {
-        setTextField(newInputValue);
-      }}
+      onInputChange={(_, newInputValue) => setTextField(newInputValue)}
       multiple={isMultiple}
       limitTags={limitTags}
       options={options}
       loading={isLoading}
       noOptionsText={'Data not found'}
-      disabled={disabled}
+      disabled={isDisabled}
       getOptionLabel={optionLabel}
       renderOption={render}
       value={autocompleteValue}
