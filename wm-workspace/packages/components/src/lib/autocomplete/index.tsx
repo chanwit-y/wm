@@ -10,14 +10,13 @@ import {
   TextField,
   AutocompleteFreeSoloValueMapping,
   Box,
+  AutocompleteValue,
 } from '@mui/material';
 import {
   ChangeEvent,
   Children,
   cloneElement,
-  FC,
   Fragment,
-  memo,
   MouseEventHandler,
   ReactElement,
   useEffect,
@@ -33,11 +32,11 @@ import {
   UseFormSetValue,
 } from 'react-hook-form';
 import { get } from 'lodash';
-import { withValidate } from '@wm-workspace/util';
-// import {
-//   isEnglishLetters,
-//   isEnglishLettersWithNumbers,
-// } from "../../Lib/Utils/RegExp";
+import {
+  withValidate,
+  isEnglishLetters,
+  isEnglishLettersWithNumbers,
+} from '@wm-workspace/util';
 
 type ValidateInsideArrayOption = {
   index: number;
@@ -45,10 +44,15 @@ type ValidateInsideArrayOption = {
   baseName: string;
 };
 
+type OptBool = boolean | undefined;
+type KeyValue = { [key: string]: any };
+
 type Props<T> = {
   name: string;
+  // callback('text on input', callbackParam) { const {key} =  callbackParam; ...}
   callback?: Function;
-  callbackParam?: unknown;
+  // parameter for callback function {"key": "value"}
+  callbackParam?: KeyValue;
   data?: T[];
   inputValue?: string;
   limitTags?: number;
@@ -70,16 +74,12 @@ type Props<T> = {
   filterOptions?: (options: T[], state: FilterOptionsState<T>) => T[];
   groupBy?: (option: T) => string;
   transformValue?: (value: unknown) => unknown;
-
-  // optionSelected?: (option: any, value: any) => boolean;
-
   optionLabel: (
     option: T | AutocompleteFreeSoloValueMapping<boolean | undefined>
   ) => string;
   render: (props: HTMLAttributes<any>, option: T) => ReactNode;
 
   onTextChange?: (e: ChangeEvent<HTMLInputElement>) => void;
-
   onClick?: MouseEventHandler<HTMLDivElement>;
   onDelete?: Function;
 
@@ -89,7 +89,7 @@ type Props<T> = {
   errors?: DeepMap<Record<string, any>, FieldError>;
   setValue?: UseFormSetValue<FieldValues>;
 
-  selectedValue?: T;
+  selectedValue?: AutocompleteValue<T, OptBool, OptBool, OptBool>;
   onSelectedValue?: Function;
 
   freeSolo?: boolean;
@@ -117,7 +117,6 @@ export const Autocomplete = <T extends any>({
   filterOptions,
   groupBy,
   transformValue,
-  // optionSelected,
   optionLabel,
   render,
   onTextChange,
@@ -134,11 +133,11 @@ export const Autocomplete = <T extends any>({
   validate = false,
   filterSelectedOptions = true,
 }: Props<T>) => {
-  const [autocompleteValue, setAutocompleteValue] = useState<T  | undefined | null>(
-    selectedValue
-  );
+  const [autocompleteValue, setAutocompleteValue] = useState<
+    T | undefined | AutocompleteValue<T, OptBool, OptBool, OptBool>
+  >(selectedValue ?? null);
   const [textField, setTextField] = useState(inputValue);
-  const [options, setOptions] = useState<any>([]);
+  const [options, setOptions] = useState<T[]>([]);
   const [open, setOpen] = useState(false);
   const [errorAutoComplet, setErrorAutoComplet] = useState<any>();
   const [isLoading, setIsLoading] = useState(false);
@@ -148,14 +147,13 @@ export const Autocomplete = <T extends any>({
     500
   );
 
-  const validateLetters = (evt: KeyboardEvent<HTMLDivElement>) => {
-    //     if (isLettersOnly) {
-    //       if (!isEnglishLetters(evt.key))
-    //         if (evt.preventDefault) evt.preventDefault();
-    //     } else if (isEnglishOnly) {
-    //       if (!isEnglishLettersWithNumbers(evt.key))
-    //         if (evt.preventDefault) evt.preventDefault();
-    //     }
+  const validateLetters = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (isLettersOnly) {
+      if (!isEnglishLetters(e.key)) if (e.preventDefault) e.preventDefault();
+    } else if (isEnglishOnly) {
+      if (!isEnglishLettersWithNumbers(e.key))
+        if (e.preventDefault) e.preventDefault();
+    }
   };
 
   useEffect(() => {
@@ -179,21 +177,21 @@ export const Autocomplete = <T extends any>({
       setOptions([]);
       const getOptionData = async () => {
         if (callback) {
-          return await callback('', callbackParam);
+          const res = (await callback('', callbackParam)) as T[];
+          setOptions(res);
+        } else {
+          setOptions(data ?? []);
         }
+        setIsLoading(false);
       };
-
-      const optionData = callback ? getOptionData() : data ? data : [];
-
-      setOptions(optionData);
-      setIsLoading(false);
+      getOptionData();
     }
   }, [isShowAll, data]);
 
   const callBackWithSetOptions = async (text: string) => {
     setOptions([]);
 
-    let response: unknown;
+    let response: T[];
     setIsLoading(true);
     if (callbackParam) {
       response = callback && (await callback(text, callbackParam));
@@ -216,25 +214,17 @@ export const Autocomplete = <T extends any>({
   }, [errors, errorName]);
 
   useEffect(() => {
-    console.log(isShowSearchIcon)
-  }, [isShowSearchIcon])
+    console.log(isShowSearchIcon);
+  }, [isShowSearchIcon]);
 
   return (
-    <MuiAutocomplete<
-      T,
-      boolean | undefined,
-      boolean | undefined,
-      boolean | undefined
-    >
+    <MuiAutocomplete<T, OptBool, OptBool, OptBool>
       fullWidth
       freeSolo={freeSolo}
       filterSelectedOptions={filterSelectedOptions}
       openOnFocus
-      // selectOnFocus
-      // clearOnBlur
       forcePopupIcon={false}
       autoSelect={autoSelect}
-      // disableClearable={isShowSearchIcon}
       filterOptions={
         filterOptions
           ? (options, state) => {
@@ -252,34 +242,22 @@ export const Autocomplete = <T extends any>({
         setOpen(false);
       }}
       inputValue={textField}
-      // defaultValue={autocompletValue}
-      onInputChange={(event, newInputValue) => {
+      onInputChange={(_, newInputValue) => {
         setTextField(newInputValue);
       }}
       multiple={isMultiple}
       limitTags={limitTags}
       options={options}
       loading={isLoading}
-      // noOptionsText={(!isLoading && (options.isEmpty() || !isFilterFound)) && 'No Data'}
       noOptionsText={'Data not found'}
       disabled={disabled}
-      // getOptionSelected={(option: any, value: any) => {
-      //   let result = false;
-      //   if (optionSelected) {
-      //     result = optionSelected(option, value);
-      //     errors && (errors[name] = undefined);
-      //   }
-
-      //   return result;
-      // }}
       getOptionLabel={optionLabel}
       renderOption={render}
       value={autocompleteValue}
-      onChange={(event: any, newValue: any) => {
-        onSelectedValue && onSelectedValue(newValue);
-
-        setAutocompleteValue(newValue);
-        setValue && setValue(name, newValue);
+      onChange={(_, value: AutocompleteValue<T, OptBool, OptBool, OptBool>) => {
+        onSelectedValue && onSelectedValue(value);
+        setAutocompleteValue(value);
+        setValue && setValue(name, value);
         setErrorAutoComplet(undefined);
       }}
       renderInput={(params) => {
@@ -289,9 +267,9 @@ export const Autocomplete = <T extends any>({
           (child, i) => {
             return cloneElement(child as ReactElement<any>, {
               children: [
-                <Box display="flex" px={1} >
+                <Box key={i} display="flex" px={1}>
                   {(isLoading || isShowLoading) && (
-                    <Box px={1} pt={1} >
+                    <Box px={1} pt={1}>
                       <CircularProgress color="primary" size={20} />
                     </Box>
                   )}
@@ -299,7 +277,7 @@ export const Autocomplete = <T extends any>({
                     <IconButton
                       className="margin-autocomplete-Icon"
                       size="small"
-                      onClick={(e) => {
+                      onClick={() => {
                         onDelete && onDelete();
                       }}
                     >
@@ -313,9 +291,6 @@ export const Autocomplete = <T extends any>({
           }
         );
 
-        console.log(Children)
-        console.log(removeClassNameElement)
-
         return (
           <Fragment>
             <TextField
@@ -323,7 +298,6 @@ export const Autocomplete = <T extends any>({
               size="small"
               variant="outlined"
               onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                // e.target.value === "" && setAutocompleteValue(null);
                 !isShowAll && delayedHandleChange(e.target.value);
                 freeSolo && setValue && setValue(name, e.target.value);
                 onTextChange && onTextChange(e);
@@ -356,7 +330,13 @@ export const Autocomplete = <T extends any>({
                 startAdornment: isMultiple
                   ? params.InputProps.startAdornment
                   : frontIcon,
-                endAdornment: <>{removeClassNameElement ? removeClassNameElement?.first() : isShowSearchIcon && <SearchIcon />}</>,
+                endAdornment: (
+                  <>
+                    {removeClassNameElement
+                      ? removeClassNameElement?.first()
+                      : isShowSearchIcon && <SearchIcon />}
+                  </>
+                ),
               }}
             />
           </Fragment>
