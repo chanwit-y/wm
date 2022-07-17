@@ -6,6 +6,7 @@
     "auth": "packages/auth",
     "components": "packages/components",
     "firebase": "packages/firebase",
+    "util": "packages/util",
     "web-ui": "packages/web-ui",
     "web-ui-e2e": "packages/web-ui-e2e"
   }
