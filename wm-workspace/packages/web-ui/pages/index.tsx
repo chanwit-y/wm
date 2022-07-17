@@ -33,7 +33,10 @@ export function Index() {
             data={['a', 'b', 'c']}
             isShowAll={true}
             optionLabel={(opt) => opt}
-            render={(props, opt) => <Fragment {...props}>{opt}</Fragment>}
+            isShowSearchIcon={true}
+            render={(props, opt) => (
+                <div {...props}>{opt}</div>
+            )}
           />
         </Box>
         <Button>Test</Button>

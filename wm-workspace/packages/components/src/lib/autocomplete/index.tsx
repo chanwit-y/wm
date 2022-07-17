@@ -9,6 +9,7 @@ import {
   IconButton,
   TextField,
   AutocompleteFreeSoloValueMapping,
+  Box,
 } from '@mui/material';
 import {
   ChangeEvent,
@@ -75,7 +76,7 @@ type Props<T> = {
   optionLabel: (
     option: T | AutocompleteFreeSoloValueMapping<boolean | undefined>
   ) => string;
-  render: (props: HTMLAttributes<HTMLLIElement>, option: T) => ReactNode;
+  render: (props: HTMLAttributes<any>, option: T) => ReactNode;
 
   onTextChange?: (e: ChangeEvent<HTMLInputElement>) => void;
 
@@ -214,6 +215,10 @@ export const Autocomplete = <T extends any>({
     }
   }, [errors, errorName]);
 
+  useEffect(() => {
+    console.log(isShowSearchIcon)
+  }, [isShowSearchIcon])
+
   return (
     <MuiAutocomplete<
       T,
@@ -284,11 +289,11 @@ export const Autocomplete = <T extends any>({
           (child, i) => {
             return cloneElement(child as ReactElement<any>, {
               children: [
-                <div className="flex px-1">
+                <Box display="flex" px={1} >
                   {(isLoading || isShowLoading) && (
-                    <div className="px-1 pt-1">
+                    <Box px={1} pt={1} >
                       <CircularProgress color="primary" size={20} />
-                    </div>
+                    </Box>
                   )}
                   {isShowDeleteIcon && (
                     <IconButton
@@ -302,11 +307,14 @@ export const Autocomplete = <T extends any>({
                     </IconButton>
                   )}
                   {isShowSearchIcon && <SearchIcon />}
-                </div>,
+                </Box>,
               ],
             });
           }
         );
+
+        console.log(Children)
+        console.log(removeClassNameElement)
 
         return (
           <Fragment>
@@ -348,7 +356,7 @@ export const Autocomplete = <T extends any>({
                 startAdornment: isMultiple
                   ? params.InputProps.startAdornment
                   : frontIcon,
-                endAdornment: <>{removeClassNameElement?.first()}</>,
+                endAdornment: <>{removeClassNameElement ? removeClassNameElement?.first() : isShowSearchIcon && <SearchIcon />}</>,
               }}
             />
           </Fragment>
