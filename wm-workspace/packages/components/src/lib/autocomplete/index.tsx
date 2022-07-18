@@ -107,15 +107,15 @@ export const Autocomplete = <T extends any>({
     if (isShowAll) {
       setOptions([]);
       const getOptionData = async () => {
-        if (callback) {
-          // const res = await callback('', callbackParam);
-          // res
-          //   .pipe(switchMap((res) => res))
-          //   .subscribe((res) => setOptions((perv) => [...perv, res]));
-          // setOptions(res);
-        } else {
-          setOptions(data ?? []);
-        }
+        // if (callback) {
+        //   // const res = await callback('', callbackParam);
+        //   // res
+        //   //   .pipe(switchMap((res) => res))
+        //   //   .subscribe((res) => setOptions((perv) => [...perv, res]));
+        //   // setOptions(res);
+        // } else {
+        setOptions(data ?? []);
+        // }
         setIsLoading(false);
       };
       getOptionData();
