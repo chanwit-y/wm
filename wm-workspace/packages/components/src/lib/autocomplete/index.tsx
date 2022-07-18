@@ -1,108 +1,39 @@
 import '@wm-workspace/util';
-import DeleteIcon from '@mui/icons-material/Delete';
-import SearchIcon from '@mui/icons-material/Search';
-import {
-  Autocomplete as MuiAutocomplete,
-  FilterOptionsState,
-  CircularProgress,
-  debounce,
-  IconButton,
-  TextField,
-  AutocompleteFreeSoloValueMapping,
-  Box,
-  AutocompleteValue,
-} from '@mui/material';
 import {
   ChangeEvent,
   Children,
   cloneElement,
   Fragment,
-  MouseEventHandler,
   ReactElement,
   useEffect,
   useState,
   KeyboardEvent,
-  ReactNode,
-  HTMLAttributes,
 } from 'react';
 import {
-  DeepMap,
-  FieldError,
-  FieldValues,
-  UseFormSetValue,
-} from 'react-hook-form';
+  Autocomplete as MuiAutocomplete,
+  CircularProgress,
+  IconButton,
+  TextField,
+  Box,
+  AutocompleteValue,
+} from '@mui/material';
 import { get } from 'lodash';
 import {
   withValidate,
   isEnglishLetters,
   isEnglishLettersWithNumbers,
 } from '@wm-workspace/util';
-import { Observable, Subject, switchMap } from 'rxjs';
+import { Observable, Subject, distinct, debounce, interval } from 'rxjs';
+import { Props, OptBool, OperatorFunction } from './@types';
 
-type ValidateInsideArrayOption = {
-  index: number;
-  name: string;
-  baseName: string;
-};
-
-type OptBool = boolean | undefined;
-type KeyValue = { [key: string]: any };
-
-type Props<T> = {
-  name: string;
-  // callback('text on input', callbackParam) { const {key} =  callbackParam; ...}
-  subject: Subject<string>;
-  callback?: (callbackParam?: KeyValue) => Observable<any>; // Function;
-  // parameter for callback function {"key": "value"}
-  callbackParam?: KeyValue;
-  data?: T[];
-  inputValue?: string;
-  limitTags?: number;
-
-  isShowAll?: boolean;
-  isMultiple?: boolean;
-  isShowLoading?: boolean;
-  isShowDeleteIcon?: boolean;
-  isShowSearchIcon?: boolean;
-  isLettersOnly?: boolean;
-  isEnglishOnly?: boolean;
-  isFilterSelectedOptions?: boolean;
-  isDisabled?: boolean;
-  isAutoSelect?: boolean;
-  isValidate?: boolean;
-
-  frontIcon?: JSX.Element;
-
-  filterOptions?: (options: T[], state: FilterOptionsState<T>) => T[];
-  groupBy?: (option: T) => string;
-  transformValue?: (value: unknown) => unknown;
-  optionLabel: (
-    option: T | AutocompleteFreeSoloValueMapping<boolean | undefined>
-  ) => string;
-  render: (props: HTMLAttributes<any>, option: T) => ReactNode;
-
-  onTextChange?: (e: ChangeEvent<HTMLInputElement>) => void;
-  onClick?: MouseEventHandler<HTMLDivElement>;
-  onDelete?: Function;
-
-  validateInsideArrayOption?: ValidateInsideArrayOption;
-
-  errorName?: string;
-  errors?: DeepMap<Record<string, any>, FieldError>;
-  setValue?: UseFormSetValue<FieldValues>;
-
-  selectedValue?: AutocompleteValue<T, OptBool, OptBool, OptBool>;
-  onSelectedValue?: Function;
-
-  freeSolo?: boolean;
-  placeholder?: string;
-};
+import DeleteIcon from '@mui/icons-material/Delete';
+import SearchIcon from '@mui/icons-material/Search';
 
 export const Autocomplete = <T extends any>({
   name,
   subject,
   callback,
-  callbackParam,
+  // callbackParam,
   data,
   inputValue = '',
   limitTags = 4,
@@ -146,11 +77,6 @@ export const Autocomplete = <T extends any>({
   const [errorAutoComplet, setErrorAutoComplet] = useState<any>();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  // const delayedHandleChange = debounce(
-  //   (text: string) => callBackWithOtherParam(text),
-  //   500
-  // );
 
   const validateLetters = (e: KeyboardEvent<HTMLDivElement>) => {
     if (isLettersOnly) {
@@ -196,30 +122,6 @@ export const Autocomplete = <T extends any>({
     }
   }, [isShowAll, data]);
 
-  // const callBackWithOtherParam = async (text: string) => {
-  //   setOptions([]);
-
-  //   setIsLoading(true);
-  //   // TODO: callback call by switchmap rxjs
-  //   // const response = callbackParam
-  //   //   ? callback && (await callback(text, callbackParam))
-  //   //   : callback && (await callback(text, callbackParam));
-  //   // response && setOptions(response);
-
-  //   if (callback) {
-  //     console.log('Hi');
-  //     // const res = callback && callback(subject, callbackParam);
-  //     // console.log(res);
-  //     // res && res.subscribe((res) => console.log(res));
-  //     // // res &&
-  //     //   res
-  //     //     .pipe(switchMap((res) => res))
-  //     //     .subscribe((res) => setOptions((perv) => [...perv, res]));
-  //   }
-
-  //   setIsLoading(false);
-  // };
-
   useEffect(() => {
     if (validateInsideArrayOption && errors) {
       const { baseName, name, index } = validateInsideArrayOption;
@@ -232,19 +134,13 @@ export const Autocomplete = <T extends any>({
   }, [errors, errorName]);
 
   useEffect(() => {
-    console.log(isShowSearchIcon);
-  }, [isShowSearchIcon]);
-
-  useEffect(() => {
     console.log('callback');
     callback &&
       callback().subscribe((res) => {
-        setOptions([]);
-        console.log(res);
-        setOptions(res);
+        // setOptions(() => []);
+        setOptions(() => res);
         setIsLoading(false);
       });
-    // subject.subscribe((res) => console.log(res));
   }, [callback, setOptions, setIsLoading]);
 
   return (
@@ -374,3 +270,14 @@ export const Autocomplete = <T extends any>({
 
 // export const Autocomplete = memo(AutocompleteFC);
 export const FormAutocomplete = withValidate(Autocomplete);
+
+export const autoCompleteAPI = (
+  suject: Subject<string>,
+  op: OperatorFunction<string, any>
+): Observable<unknown> => {
+  return suject.pipe(
+    debounce(() => interval(500)),
+    distinct(),
+    op
+  );
+};
