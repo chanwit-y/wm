@@ -4,6 +4,7 @@
   "projects": {
     "app-config": "packages/app-config",
     "auth": "packages/auth",
+    "c-lib": "packages/c-lib",
     "components": "packages/components",
     "firebase": "packages/firebase",
     "util": "packages/util",
