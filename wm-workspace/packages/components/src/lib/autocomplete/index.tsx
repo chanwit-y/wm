@@ -129,7 +129,6 @@ export const Autocomplete = <T extends any>({
     console.log('callback');
     callback &&
       callback().subscribe((res) => {
-        // setOptions(() => []);
         setOptions(() => res);
         setIsLoading(false);
       });
@@ -211,7 +210,6 @@ export const Autocomplete = <T extends any>({
               variant="outlined"
               onChange={(e: ChangeEvent<HTMLInputElement>) => {
                 subject.next(e.target.value);
-                // !isShowAll && delayedHandleChange(e.target.value);
                 freeSolo && setValue && setValue(name, e.target.value);
                 onTextChange && onTextChange(e);
                 e.target.value === '' && setValue && setValue(name, '');
@@ -220,7 +218,6 @@ export const Autocomplete = <T extends any>({
               onClick={(e) => {
                 onClick && onClick(e);
                 if (!isShowAll) {
-                  // delayedHandleChange('');
                   subject.next('');
                   setIsLoading(true);
                   setIsOpen(true);
