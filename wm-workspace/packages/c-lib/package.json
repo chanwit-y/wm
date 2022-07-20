@@ -1,6 +1,6 @@
 {
   "name": "@chanwit-y/c-lib",
-  "version": "0.0.1",
+  "version": "0.0.7",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/chanwit-y/wm.git"

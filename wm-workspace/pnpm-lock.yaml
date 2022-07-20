@@ -1,6 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@chanwit-y/c-lib': ^0.0.7
   '@emotion/react': ^11.9.3
   '@emotion/styled': ^11.9.3
   '@mui/icons-material': ^5.8.4
@@ -53,6 +54,7 @@ specifiers:
   typescript: ~4.7.2
 
 dependencies:
+  '@chanwit-y/c-lib': 0.0.7
   '@emotion/react': 11.9.3_luyos4mouogwq6z3wafb3re4ce
   '@emotion/styled': 11.9.3_mtgmvqaicd2yfw2b4v4o2ssbiu
   '@mui/icons-material': 5.8.4_7guipfjhzv6smquzytw5hib3cy
@@ -1470,6 +1472,10 @@ packages:
 
   /@bcoe/v8-coverage/0.2.3:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
+
+  /@chanwit-y/c-lib/0.0.7:
+    resolution: {integrity: sha512-wlxdDr1HfL7FR0tWQW0P9QNch6osLE8Vz1TD1R82aGPRqQ0OPYq3jcKsT7Rn18m68XLP6lDQ3epaC3NMfa87rA==, tarball: download/@chanwit-y/c-lib/0.0.7/19764628d204e6cfb9a165c0f890fa1856f02c50fd83ad6a07df2bf9baf43f2d}
+    dev: false
 
   /@colors/colors/1.5.0:
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}

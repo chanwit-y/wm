@@ -1,6 +1,7 @@
 import { Box, Button } from '@mui/material';
 import { getDataAll } from '@wm-workspace/firebase';
 import { Autocomplete, autoCompleteAPI } from '@wm-workspace/components';
+import { Test } from '@chanwit-y/c-lib';
 import { DocumentData } from 'firebase/firestore';
 import { useState } from 'react';
 import { Fragment, useEffect } from 'react';
@@ -44,6 +45,7 @@ export function Index() {
     <div>
       <Fragment>
         {JSON.stringify(data, undefined, 2)}
+        <Test />
         <Box px={5}>
           <Autocomplete<PostType>
             name="test"

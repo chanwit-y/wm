@@ -69,7 +69,7 @@ export const Autocomplete = <T extends any>({
   isValidate = false,
 }: Props<T>) => {
   // const subject = new Subject<string>();
-  const [autocompleteValue, setAutocompleteValue] = useState<T | undefined>(
+  const [autocompleteValue, setAutocompleteValue] = useState<any>(
     selectedValue
   );
   const [textField, setTextField] = useState(inputValue);
