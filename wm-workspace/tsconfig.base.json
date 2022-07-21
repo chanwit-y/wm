@@ -16,6 +16,7 @@
     "baseUrl": ".",
     "types": [],
     "paths": {
+      "@chanwit-y/my-comp": ["packages/my-comp/src/index.ts"],
       "@wm-workspace/app-config": ["packages/app-config/src/index.ts"],
       "@wm-workspace/auth": ["packages/auth/src/index.ts"],
       "@wm-workspace/c-lib": ["packages/c-lib/src/index.ts"],

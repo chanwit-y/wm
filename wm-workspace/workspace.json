@@ -5,8 +5,10 @@
     "app-config": "packages/app-config",
     "auth": "packages/auth",
     "c-lib": "packages/c-lib",
+    "c-lib-e2e": "packages/c-lib-e2e",
     "components": "packages/components",
     "firebase": "packages/firebase",
+    "my-comp": "packages/my-comp",
     "util": "packages/util",
     "web-ui": "packages/web-ui",
     "web-ui-e2e": "packages/web-ui-e2e"
