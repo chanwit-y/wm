@@ -24,6 +24,12 @@
         ]
       }
     },
+    "export": {
+      "executor": "@nrwl/next:export",
+      "options": {
+        "buildTarget": "my-comp:build:production"
+      }
+    },
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
