@@ -6,7 +6,7 @@
     "auth": "packages/auth",
     "c-lib": "packages/c-lib",
     "c-lib-e2e": "packages/c-lib-e2e",
-    "components": "packages/components",
+    "components-bk": "packages/components-bk",
     "firebase": "packages/firebase",
     "my-comp": "packages/my-comp",
     "util": "packages/util",

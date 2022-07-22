@@ -20,7 +20,7 @@
       "@wm-workspace/app-config": ["packages/app-config/src/index.ts"],
       "@wm-workspace/auth": ["packages/auth/src/index.ts"],
       "@wm-workspace/c-lib": ["packages/c-lib/src/index.ts"],
-      "@wm-workspace/components": ["packages/components/src/index.ts"],
+      "@wm-workspace/components-bk": ["packages/components-bk/src/index.ts"],
       "@wm-workspace/firebase": ["packages/firebase/src/index.ts"],
       "@wm-workspace/util": ["packages/util/src/index.ts"]
     }

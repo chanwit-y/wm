@@ -1,10 +1,10 @@
 /* eslint-disable */
 export default {
-  displayName: 'components',
+  displayName: 'components-bk',
   preset: '../../jest.preset.js',
   transform: {
     '^.+\\.[tj]sx?$': 'babel-jest',
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
-  coverageDirectory: '../../coverage/packages/components',
+  coverageDirectory: '../../coverage/packages/components-bk',
 };
